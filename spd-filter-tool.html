@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPD selection tool  </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36D399',
+                        neutral: '#F3F4F6',
+                        dark: '#1F2937'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .filter-active {
+                @apply bg-primary text-white;
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-dark">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">  <!-- 调整间距为4更宽松 -->
+                <!-- 公司logo -->
+                <img src="C:\Users\Administrator\Desktop\公司logo.png" alt="公司logo" class="w-16 h-8 object-contain rounded-sm">  <!-- 宽度64px/高度32px，保持比例显示 -->
+                <h1 class="text-xl font-bold text-primary">Surge Protective Device (SPD) parameter selection tool </h1>
+            </div>
+            <button class="md:hidden text-gray-600">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 页面标题 -->
+        <div class="text-center mb-10">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-3">SPD product parameter selection  </h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Select the appropriate SPD product parameters based on your needs. Supports multi-condition filtering by number of poles, voltage, protection level, and current parameters.</p>
+        </div>
+
+        <!-- 筛选面板 -->
+        <div class="bg-white rounded-xl p-6 mb-8 card-shadow">
+            <h3 class="text-lg font-semibold mb-5 flex items-center">
+                <i class="fa fa-filter text-primary mr-2"></i>Filter conditions
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 极数筛选 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pole number </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="pole" data-value="1">1极</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="pole" data-value="2">2极</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="pole" data-value="3">3极</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="pole" data-value="4">4极</button>
+                    </div>
+                </div>
+
+                <!-- 电压筛选 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Maximum continuous operating voltage(Uc)</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="voltage" data-value="230V">230V</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="voltage" data-value="275V">275V</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="voltage" data-value="320V">320V</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="voltage" data-value="385V">385V</button>
+                    </div>
+                </div>
+
+                <!-- 防护等级筛选 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Protection level </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="protection" data-value="T1">T1</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="protection" data-value="T2">T2</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="protection" data-value="T3">T3</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="protection" data-value="T1/T2">T1/T2</button>
+                        <button class="filter-btn px-3 py-1.5 rounded-full text-sm border border-gray-300 hover:bg-gray-100 transition-colors" data-filter="protection" data-value="T2/T3">T2/T3</button>
+                    </div>
+                </div>
+
+                <!-- 电流参数筛选 - 下拉选择 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Parameters</label>
+                    <div class="space-y-3">
+                        <div>
+                            <span class="text-xs text-gray-500 block mb-1">Nominal Discharge Current(In)</span>
+                            <select id="in-select" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                                <option value="any">No limit</option>
+                                <option value="5">≥10kA</option>
+                                <option value="10">≥20kA</option>
+                                <option value="20">≥40kA</option>
+                                <option value="40">≥60kA</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block mb-1">Impulse Current(Iimp)</span>
+                            <select id="iimp-select" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                                <option value="any">No limit</option>
+                                <option value="15">≥15kA</option>
+                                <option value="25">≥25kA</option>
+                                <option value="50">≥20kA</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block mb-1">Maximum Discharge Current(Imax)</span>
+                            <select id="imax-select" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary">
+                                <option value="any">No limit</option>
+                                <option value="20">≥20kA</option>
+                                <option value="40">≥40kA</option>
+                                <option value="60">≥60kA</option>
+                                <option value="80">≥80kA</option>
+                                <option value="100">≥100kA</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选按钮 -->
+            <div class="flex justify-end mt-6 space-x-3">
+                <button id="reset-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-refresh mr-1"></i>重置
+                </button>
+                <button id="apply-filter" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
+                    <i class="fa fa-search mr-1"></i>应用筛选
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛选结果统计 -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold">筛选结果 <span id="result-count">(0)</span></h3>
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">排序方式:</span>
+                <select id="sort-select" class="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary">
+                    <option value="voltage-asc">电压(低到高)</option>
+                    <option value="voltage-desc">电压(高到低)</option>
+                    <option value="in-asc">标称电流(低到高)</option>
+                    <option value="in-desc">标称电流(高到低)</option>
+                    <option value="iimp-asc">冲击电流(低到高)</option>
+                    <option value="iimp-desc">冲击电流(高到低)</option>
+                    <option value="model-asc">型号(字母序)</option>
+                    <option value="model-desc">型号(字母序逆序)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 筛选结果列表 -->
+        <div id="result-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 结果将通过JS动态生成 -->
+        </div>
+
+        <!-- 分页控件 -->
+        <div class="flex justify-center mt-10">
+            <nav class="flex items-center space-x-1">
+                <button class="px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <button class="px-3 py-1.5 rounded bg-primary text-white">1</button>
+                <button class="px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">2</button>
+                <button class="px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">3</button>
+                <span class="px-2 text-gray-400">...</span>
+                <button class="px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">10</button>
+                <button class="px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <p class="text-gray-400 text-sm">© 2025 Promov  </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 产品详情模态框 -->
+    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="modal-title" class="text-xl font-bold"></h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <img id="modal-image" src="" alt="产品图片" class="w-full h-64 object-cover rounded-lg mb-4">
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-neutral rounded p-2">
+                            <span class="text-xs text-gray-500">防护等级</span>
+                            <p id="modal-protection" class="font-medium"></p>
+                        </div>
+                        <div class="bg-neutral rounded p-2">
+                            <span class="text-xs text-gray-500">极数</span>
+                            <p id="modal-pole" class="font-medium"></p>
+                        </div>
+                        <div class="bg-neutral rounded p-2">
+                            <span class="text-xs text-gray-500">电压</span>
+                            <p id="modal-voltage" class="font-medium"></p>
+                        </div>
+                        <div class="bg-neutral rounded p-2">
+                            <span class="text-xs text-gray-500">标称电流</span>
+                            <p id="modal-in" class="font-medium"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="space-y-3">
+                        <div>
+                            <span class="text-xs text-gray-500 block">冲击电流</span>
+                            <p id="modal-iimp" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">最大放电电流</span>
+                            <p id="modal-imax" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">残压</span>
+                            <p id="modal-up" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">响应时间</span>
+                            <p id="modal-response" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">脱离器型号</span>
+                            <p id="modal-ssd" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">导线规格</span>
+                            <p id="modal-wire" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">尺寸</span>
+                            <p id="modal-dimensions" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">重量</span>
+                            <p id="modal-weight" class="font-medium"></p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 block">认证标准</span>
+                            <p id="modal-certification" class="font-medium"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button id="close-modal-btn" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SPD产品数据 - 修正后的型号列表
+        const spdData = [
+            // T1级产品
+            { model: "VA150/275/2P", pole: 2, voltage: "275V", protection: "T1", in: 0, iimp: 25, imax: 0, up: "≤2.3kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f586690ec30b.jpg", dimensions: "170×85×60mm", weight: "0.7kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150/275/3P", pole: 3, voltage: "275V", protection: "T1", in: 0, iimp: 25, imax: 0, up: "≤2.3kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5866ab4beb1.jpg", dimensions: "255×85×60mm", weight: "1.0kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150/275/4P", pole: 4, voltage: "275V", protection: "T1", in: 0, iimp: 25, imax: 0, up: "≤2.3kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5867841271a.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+           
+            { model: "VA150/440/2P", pole: 2, voltage: "440V", protection: "T1", in: 0, iimp: 25, imax: 0, up: "≤2.3kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f586690ec30b.jpg", dimensions: "170×85×60mm", weight: "0.7kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150/440/3P", pole: 3, voltage: "440V", protection: "T1", in: 0, iimp: 25, imax: 0, up: "≤2.3kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5866ab4beb1.jpg", dimensions: "255×85×60mm", weight: "1.0kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150/440/4P", pole: 4, voltage: "440V", protection: "T1", in: 0, iimp: 25, imax: 0, up: "≤2.3kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5867841271a.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150A/385/2P", pole: 2, voltage: "385V", protection: "T1", in: 0, iimp: 20, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150A/385/1P+N", pole: 2, voltage: "385V", protection: "T1", in: 0, iimp: 20, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad13f0f035.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150A/385/3P", pole: 3, voltage: "385V", protection: "T1", in: 0, iimp: 20, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150A/385/4P", pole: 4, voltage: "385V", protection: "T1", in: 0, iimp: 20, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad186ceb18.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150A/385/3P+N", pole: 4, voltage: "385V", protection: "T1", in: 0, iimp: 20, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150B/385/2P", pole: 2, voltage: "385V", protection: "T1", in: 0, iimp: 15, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5bbab283c5339.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150B/385/1P+N", pole: 2, voltage: "385V", protection: "T1", in: 0, iimp: 15, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150B/385/3P", pole: 3, voltage: "385V", protection: "T1", in: 0, iimp: 15, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5bbab24b60976.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150B/385/4P", pole: 4, voltage: "385V", protection: "T1", in: 0, iimp: 15, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5896edae6a1.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA150B/385/3P+N", pole: 4, voltage: "385V", protection: "T1", in: 0, iimp: 15, imax: 0, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            // T2级产品
+            { model: "VB40/150/2P", pole: 2, voltage: "150V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad8d3812ae.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VB40/150/1P+N", pole: 2, voltage: "150V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad900a8d20.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/150/3P", pole: 3, voltage: "150V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad92edca4c.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/150/4P", pole: 4, voltage: "150V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5ad978bc4eb.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/150/3P+N", pole: 4, voltage: "150V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad949afd4c.jpg", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/275/2P", pole: 2, voltage: "275V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad8d3812ae.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VB40/275/1P+N", pole: 2, voltage: "275V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad900a8d20.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/275/3P", pole: 3, voltage: "275V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad92edca4c.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/275/4P", pole: 4, voltage: "275V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5ad978bc4eb.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/275/3P+N", pole: 4, voltage: "275V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad949afd4c.jpg", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/320/2P", pole: 2, voltage: "320V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad8d3812ae", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VB40/320/1P+N", pole: 2, voltage: "320V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad900a8d20.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/320/3P", pole: 3, voltage: "320V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad92edca4c.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/320/4P", pole: 4, voltage: "320V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5ad978bc4eb.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/320/3P+N", pole: 4, voltage: "320V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad949afd4c.jpg", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/385/2P", pole: 2, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad8d3812ae.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VB40/385/1P+N", pole: 2, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad900a8d20.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/385/3P", pole: 3, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad92edca4c.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/385/4P", pole: 4, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5ad978bc4eb.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/385/3P+N", pole: 4, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad949afd4c.jpg", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/440/2P", pole: 2, voltage: "440V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad8d3812ae.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VB40/440/1P+N", pole: 2, voltage: "440V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad900a8d20.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/440/3P", pole: 3, voltage: "440V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad92edca4c.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/440/4P", pole: 4, voltage: "440V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/Product/thumb_5f5ad978bc4eb.jpg", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40/440/3P+N", pole: 4, voltage: "440V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤2.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://www.taihang.cc/Uploads/ProductPic/thumb_5f5ad949afd4c.jpg", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40T/385/2P", pole: 2, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VB40T/385/1P+N", pole: 2, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40T/385/3P", pole: 3, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40T/385/4P", pole: 4, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VB40T/385/3P+N", pole: 4, voltage: "385V", protection: "T2", in: 40, iimp: 0, imax: 80, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/150/2P", pole: 2, voltage: "150V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VC20/150/1P+N", pole: 2, voltage: "150V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/150/3P", pole: 3, voltage: "150V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/150/4P", pole: 4, voltage: "150V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/150/3P+N", pole: 4, voltage: "150V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/275/2P", pole: 2, voltage: "275V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VC20/275/1P+N", pole: 2, voltage: "275V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/275/3P", pole: 3, voltage: "275V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/275/4P", pole: 4, voltage: "275V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/275/3P+N", pole: 4, voltage: "275V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/320/2P", pole: 2, voltage: "320V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.6kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VC20/320/1P+N", pole: 2, voltage: "320V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.6kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/320/3P", pole: 3, voltage: "320V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.6kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/320/4P", pole: 4, voltage: "320V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.6kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/320/3P+N", pole: 4, voltage: "320V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.6kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/385/2P", pole: 2, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VC20/385/1P+N", pole: 2, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/385/3P", pole: 3, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/385/4P", pole: 4, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/385/3P+N", pole: 4, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/440/2P", pole: 2, voltage: "440V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VC20/440/1P+N", pole: 2, voltage: "440V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/440/3P", pole: 3, voltage: "440V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/440/4P", pole: 4, voltage: "440V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20/440/3P+N", pole: 4, voltage: "440V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤2.0kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20T/385/2P", pole: 2, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VC20T/385/1P+N", pole: 2, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20T/385/3P", pole: 3, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20T/385/4P", pole: 4, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VC20T/385/3P+N", pole: 4, voltage: "385V", protection: "T2", in:20, iimp: 0, imax: 40, up: "≤1.5kV", responseTime: "<100ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            // T1/T2组合产品
+            { model: "VA60/275/3P", pole: 3, voltage: "275V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA60/275/4P", pole: 4, voltage: "275V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA60/275/3P+N", pole: 4, voltage: "275V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA60/385/2P", pole: 2, voltage: "385V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA60/385/1P+N", pole: 2, voltage: "385V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA60/385/3P", pole: 3, voltage: "385V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA60/385/4P", pole: 4, voltage: "385V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VA60/385/3P+N", pole: 4, voltage: "385V", protection: "T1/T2", in: 60, iimp: 0, imax: 100, up: "≤2.3kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            
+            
+            // T2/T3组合产品
+            { model: "VD10/150/2P", pole: 2, voltage: "150V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤0.7kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VD10/150/1P+N", pole: 2, voltage: "150V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤0.7kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/150/3P", pole: 3, voltage: "150V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤0.7kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/150/4P", pole: 4, voltage: "150V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤0.7kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/150/3P+N", pole: 4, voltage: "150V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤0.7kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/275/2P", pole: 2, voltage: "275V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VD10/275/1P+N", pole: 2, voltage: "275V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/275/3P", pole: 3, voltage: "275V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/275/4P", pole: 4, voltage: "275V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/275/3P+N", pole: 4, voltage: "275V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.1kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/320/2P", pole: 2, voltage: "320V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VD10/320/1P+N", pole: 2, voltage: "320V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/320/3P", pole: 3, voltage: "320V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/320/4P", pole: 4, voltage: "320V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/320/3P+N", pole: 4, voltage: "320V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.2kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/385/2P", pole: 2, voltage: "385V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VD10/385/1P+N", pole: 2, voltage: "385V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/385/3P", pole: 3, voltage: "385V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/385/4P", pole: 4, voltage: "385V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/385/3P+N", pole: 4, voltage: "385V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.5kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/440/2P", pole: 2, voltage: "440V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va275-385-4P/200/275", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18801.3" },
+            { model: "VD10/440/1P+N", pole: 2, voltage: "440V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/440/3P", pole: 3, voltage: "440V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-4P/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/440/4P", pole: 4, voltage: "440V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-3pn/200/150", dimensions: "340×85×60mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            { model: "VD10/440/3P+N", pole: 4, voltage: "440V", protection: "T2/T3", in:10, iimp: 0, imax: 20, up: "≤1.8kV", responseTime: "<25ns", ssdModel: "T08/100E1", wireSize: "16-25mm²/25mm²", image: "https://picsum.photos/seed/va150-385-3pn/200/150", dimensions: "340×85×40mm", weight: "1.3kg", certification: "IEC 61643-11, GB 18802.1" },
+            
+           
+        ];
+
+        // 当前筛选条件
+        let currentFilters = {
+            pole: [],
+            voltage: [],
+            protection: [],
+            in: 'any',
+            iimp: 'any',
+            imax: 'any'
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化筛选按钮事件
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const filterType = this.dataset.filter;
+                    const filterValue = this.dataset.value;
+                    
+                    // 切换选中状态
+                    this.classList.toggle('filter-active');
+                    
+                    // 更新筛选条件
+                    if (this.classList.contains('filter-active')) {
+                        currentFilters[filterType].push(filterValue);
+                    } else {
+                        currentFilters[filterType] = currentFilters[filterType].filter(v => v !== filterValue);
+                    }
+                });
+            });
+
+            // 初始化下拉选择事件
+            document.getElementById('in-select').addEventListener('change', function() {
+                currentFilters.in = this.value;
+            });
+            
+            document.getElementById('iimp-select').addEventListener('change', function() {
+                currentFilters.iimp = this.value;
+            });
+            
+            document.getElementById('imax-select').addEventListener('change', function() {
+                currentFilters.imax = this.value;
+            });
+
+            // 初始化重置按钮
+            document.getElementById('reset-filter').addEventListener('click', function() {
+                // 重置按钮状态
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('filter-active');
+                });
+                
+                // 重置下拉选择
+                document.getElementById('in-select').value = 'any';
+                document.getElementById('iimp-select').value = 'any';
+                document.getElementById('imax-select').value = 'any';
+                
+                // 重置筛选条件
+                currentFilters = {
+                    pole: [],
+                    voltage: [],
+                    protection: [],
+                    in: 'any',
+                    iimp: 'any',
+                    imax: 'any'
+                };
+                
+                // 应用筛选
+                applyFilters();
+            });
+
+            // 初始化应用筛选按钮
+            document.getElementById('apply-filter').addEventListener('click', applyFilters);
+
+            // 初始化排序选择
+            document.getElementById('sort-select').addEventListener('change', applyFilters);
+
+            // 初始化模态框关闭事件
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+            document.getElementById('product-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+
+            // 初始加载全部产品
+            applyFilters();
+        });
+
+        // 应用筛选条件
+        function applyFilters() {
+            let filteredProducts = [...spdData];
+            
+            // 应用极数筛选
+            if (currentFilters.pole.length > 0) {
+                filteredProducts = filteredProducts.filter(product => 
+                    currentFilters.pole.includes(String(product.pole))
+                );
+            }
+            
+            // 应用电压筛选
+            if (currentFilters.voltage.length > 0) {
+                filteredProducts = filteredProducts.filter(product => 
+                    currentFilters.voltage.includes(product.voltage)
+                );
+            }
+            
+            // 应用防护等级筛选
+            if (currentFilters.protection.length > 0) {
+                filteredProducts = filteredProducts.filter(product => 
+                    currentFilters.protection.includes(product.protection)
+                );
+            }
+            
+            // 应用标称电流筛选
+            if (currentFilters.in !== 'any') {
+                const minIn = parseInt(currentFilters.in);
+                filteredProducts = filteredProducts.filter(product => 
+                    product.in >= minIn
+                );
+            }
+            
+            // 应用冲击电流筛选
+            if (currentFilters.iimp !== 'any') {
+                const minIimp = parseFloat(currentFilters.iimp);
+                filteredProducts = filteredProducts.filter(product => 
+                    product.iimp >= minIimp
+                );
+            }
+            
+            // 应用最大放电电流筛选
+            if (currentFilters.imax !== 'any') {
+                const minImax = parseInt(currentFilters.imax);
+                filteredProducts = filteredProducts.filter(product => 
+                    product.imax >= minImax
+                );
+            }
+            
+            // 应用排序
+            const sortOption = document.getElementById('sort-select').value;
+            switch (sortOption) {
+                case 'voltage-asc':
+                    filteredProducts.sort((a, b) => {
+                        const voltageA = parseInt(a.voltage);
+                        const voltageB = parseInt(b.voltage);
+                        return voltageA - voltageB;
+                    });
+                    break;
+                case 'voltage-desc':
+                    filteredProducts.sort((a, b) => {
+                        const voltageA = parseInt(a.voltage);
+                        const voltageB = parseInt(b.voltage);
+                        return voltageB - voltageA;
+                    });
+                    break;
+                case 'in-asc':
+                    filteredProducts.sort((a, b) => a.in - b.in);
+                    break;
+                case 'in-desc':
+                    filteredProducts.sort((a, b) => b.in - a.in);
+                    break;
+                case 'iimp-asc':
+                    filteredProducts.sort((a, b) => a.iimp - b.iimp);
+                    break;
+                case 'iimp-desc':
+                    filteredProducts.sort((a, b) => b.iimp - a.iimp);
+                    break;
+                case 'model-asc':
+                    filteredProducts.sort((a, b) => a.model.localeCompare(b.model));
+                    break;
+                case 'model-desc':
+                    filteredProducts.sort((a, b) => b.model.localeCompare(a.model));
+                    break;
+            }
+            
+            // 更新结果计数
+            document.getElementById('result-count').textContent = `(${filteredProducts.length})`;
+            
+            // 渲染结果
+            renderResults(filteredProducts);
+        }
+
+        // 渲染结果列表
+        function renderResults(products) {
+            const container = document.getElementById('result-container');
+            container.innerHTML = '';
+            
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fa fa-search text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500">没有找到符合条件的产品</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl overflow-hidden card-shadow animate-fade-in hover:shadow-lg transition-shadow cursor-pointer';
+                card.addEventListener('click', () => openModal(product));
+                
+                card.innerHTML = `
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="${product.image}" alt="${product.model}产品图片" class="w-full h-full object-cover">
+                        <div class="absolute top-3 right-3 bg-primary text-white text-xs px-2 py-1 rounded">
+                            ${product.protection}
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-lg mb-2">${product.model}</h3>
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <div class="bg-neutral rounded p-2">
+                                <span class="text-xs text-gray-500">极数</span>
+                                <p class="font-medium">${product.pole}极</p>
+                            </div>
+                            <div class="bg-neutral rounded p-2">
+                                <span class="text-xs text-gray-500">电压</span>
+                                <p class="font-medium">${product.voltage}</p>
+                            </div>
+                            <div class="bg-neutral rounded p-2">
+                                <span class="text-xs text-gray-500">最大放电电流</span>
+                                <p class="font-medium">${product.imax}kA</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-neutral rounded p-2">
+                                <span class="text-xs text-gray-500">标称放电电流</span>
+                                <p class="font-medium">${product.in > 0 ? product.in + 'kA' : 'N/A'}</p>
+                            </div>
+                            <div class="bg-neutral rounded p-2">
+                                <span class="text-xs text-gray-500">冲击电流</span>
+                                <p class="font-medium">${product.iimp > 0 ? product.iimp + 'kA' : 'N/A'}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <button class="px-3 py-1.5 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // 打开产品详情模态框
+        function openModal(product) {
+            // 填充模态框数据
+            document.getElementById('modal-title').textContent = product.model;
+            document.getElementById('modal-image').src = product.image;
+            document.getElementById('modal-image').alt = `${product.model}产品图片`;
+            document.getElementById('modal-protection').textContent = product.protection;
+            document.getElementById('modal-pole').textContent = product.pole + '极';
+            document.getElementById('modal-voltage').textContent = product.voltage;
+            document.getElementById('modal-in').textContent = product.in > 0 ? product.in + 'kA' : 'N/A';
+            document.getElementById('modal-iimp').textContent = product.iimp > 0 ? product.iimp + 'kA' : 'N/A';
+            document.getElementById('modal-imax').textContent = product.imax + 'kA';
+            document.getElementById('modal-up').textContent = product.up;
+            document.getElementById('modal-response').textContent = product.responseTime;
+            document.getElementById('modal-ssd').textContent = product.ssdModel;
+            document.getElementById('modal-wire').textContent = product.wireSize;
+            document.getElementById('modal-dimensions').textContent = product.dimensions;
+            document.getElementById('modal-weight').textContent = product.weight;
+            document.getElementById('modal-certification').textContent = product.certification;
+            
+            // 显示模态框
+            document.getElementById('product-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+
+        // 关闭产品详情模态框
+        function closeModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+            document.body.style.overflow = ''; // 恢复背景滚动
+        }
+    </script>
+</body>
+</html>
+    
